@@ -124,6 +124,8 @@ U8G2_SSD1306_128X64_NONAME_2_HW_I2C u8g2(U8G2_R0, U8X8_PIN_NONE);
 U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, U8X8_PIN_NONE);
 #include "lsdj.h"
 #include "nanoloop.h"
+#include "mgb.h"
+
 #endif
 #include "gfx.h" //splash image
 #endif
@@ -230,6 +232,9 @@ HardwareSerial *serial = &Serial1;
 
 // USB MIDI object
 Adafruit_USBD_MIDI usb_midi;
+// Create a new instance of the Arduino MIDI Library,
+// and attach usb_midi as the transport.
+MIDI_CREATE_INSTANCE(Adafruit_USBD_MIDI, usb_midi, usbMIDI);
 
 #define GB_SET(bit_cl, bit_out, bit_in) digitalWriteFast(26, bit_cl); digitalWriteFast(27, bit_out); digitalWriteFast(28, bit_in);
 // ^ The reason for not using digitalWrite is to allign clock and data pins for the GB shift reg.
@@ -477,6 +482,9 @@ void setup() {
 */
 #ifdef OLED
 #ifdef USE_PICO
+ usb_midi.setStringDescriptor("picoBoy MIDI");
+ usbMIDI.begin();
+ while(!TinyUSBDevice.mounted()) delay(1);
  Wire.setSDA(16u);
  Wire.setSCL(17u);
  Wire.begin();
@@ -502,10 +510,12 @@ u8g2.clearBuffer();
 u8g2.drawXBMP(4, 1, splash_width, splash_height, splash_bits);
 u8g2.sendBuffer();
 #endif
-delay(3000);
+delay(5000);
 u8g2.clear();
-u8x8_DrawString(u8g2.getU8x8(),2,2,"ARDUINOBOY");
-//  u8x8_DrawString(u8g2.getU8x8(), 2, 2, "set Serial");
+u8g2.clearBuffer();
+u8g2.setFont(u8g2_font_profont22_mf);
+u8g2.drawStr(5, 32, "Arduinoboy");
+u8g2.sendBuffer();
 
 #endif
 #endif
