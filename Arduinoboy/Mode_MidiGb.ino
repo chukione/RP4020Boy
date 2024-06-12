@@ -121,8 +121,8 @@ void sendByteToGameboy(byte send_byte)
 
 void modeMidiGbUsbMidiReceive()
 {
-#if defined(USE_TEENSY)
-//#if defined(USE_TEENSY) || defined(USE_PICO)
+//#if defined(USE_TEENSY)
+#if defined(USE_TEENSY) || defined(USE_PICO)
 
     while(usbMIDI.read()) {
         uint8_t ch = usbMIDI.getChannel() - 1;
@@ -264,7 +264,7 @@ void modeMidiGbUsbMidiReceive()
         statusLedOn();
       } while (rx.header != 0);
 #endif
-#ifdef USE_PICO
+#ifdef USE_PICOS
     while(usbMIDI.read()){
       
       u8g2.clearBuffer();
