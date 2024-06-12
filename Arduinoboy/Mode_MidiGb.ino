@@ -17,7 +17,7 @@ void modeMidiGbSetup()
   pinMode(pinGBClock,OUTPUT);
   digitalWrite(pinGBClock,HIGH);
 
-#ifdef USE_TEENSY
+#if defined(USE_TEENSY)
   usbMIDI.setHandleRealTimeSystem(NULL);
 #endif
 
@@ -121,7 +121,8 @@ void sendByteToGameboy(byte send_byte)
 
 void modeMidiGbUsbMidiReceive()
 {
-#ifdef USE_TEENSY
+#if defined(USE_TEENSY)
+//#if defined(USE_TEENSY) || defined(USE_PICO)
 
     while(usbMIDI.read()) {
         uint8_t ch = usbMIDI.getChannel() - 1;
@@ -262,5 +263,46 @@ void modeMidiGbUsbMidiReceive()
 
         statusLedOn();
       } while (rx.header != 0);
+#endif
+#ifdef USE_PICO
+    while(usbMIDI.read()){
+      
+      u8g2.clearBuffer();
+      u8g2.setFont(u8g2_font_profont22_mf);
+      u8g2.setCursor(45, 20);
+      u8g2.print("mGB");
+      u8g2.setFont(u8g2_font_6x12_tf);
+      u8g2.setCursor(1, 34);
+      switch(usbMIDI.getType()){
+        case 0x80:
+          u8g2.print("NoteOff");
+          break;
+        case 0x90:
+          u8g2.print("NoteOn");
+          break;
+        case 0xB0:
+          u8g2.print("ControlChange");
+          break;
+        case 0xC0:
+          u8g2.print("ProgramChange");
+          break;
+        case 0xE0:
+          u8g2.print("PitchBend");
+          break;
+      }
+      // u8g2.print(tipo);
+      // u8g2.print (usbMIDI.getType(),HEX);
+      u8g2.setCursor(1, 44);
+      u8g2.print("nota: ");
+      u8g2.print(usbMIDI.getData1(), HEX);
+      u8g2.setCursor(1, 54);
+      u8g2.print("velocidad: ");
+      u8g2.print(usbMIDI.getData2(), HEX);
+      u8g2.setCursor(1, 64);
+      u8g2.print("canal: ");
+      u8g2.print(usbMIDI.getChannel(), DEC);
+      u8g2.sendBuffer();
+    }
+
 #endif
 }

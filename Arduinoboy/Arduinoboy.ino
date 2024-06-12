@@ -222,7 +222,7 @@ HardwareSerial *serial = &Serial1;
  ***************************************************************************/
 #elif defined(ARDUINO_ARCH_RP2040)
 #define USE_PICO
-
+//#define USE_USB 1
 #ifdef OLED
 #include <Wire.h>
 #endif
@@ -234,6 +234,7 @@ HardwareSerial *serial = &Serial1;
 Adafruit_USBD_MIDI usb_midi;
 // Create a new instance of the Arduino MIDI Library,
 // and attach usb_midi as the transport.
+// MIDI_CREATE_INSTANCE(Adafruit_USBD_MIDI, usb_midi, usbMIDI);
 MIDI_CREATE_INSTANCE(Adafruit_USBD_MIDI, usb_midi, usbMIDI);
 
 #define GB_SET(bit_cl, bit_out, bit_in) digitalWriteFast(26, bit_cl); digitalWriteFast(27, bit_out); digitalWriteFast(28, bit_in);
@@ -483,7 +484,7 @@ void setup() {
 #ifdef OLED
 #ifdef USE_PICO
  usb_midi.setStringDescriptor("picoBoy MIDI");
- usbMIDI.begin();
+ usbMIDI.begin(MIDI_CHANNEL_OMNI);
  while(!TinyUSBDevice.mounted()) delay(1);
  Wire.setSDA(16u);
  Wire.setSCL(17u);
