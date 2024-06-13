@@ -121,8 +121,8 @@ void sendByteToGameboy(byte send_byte)
 
 void modeMidiGbUsbMidiReceive()
 {
-//#if defined(USE_TEENSY)
-#if defined(USE_TEENSY) || defined(USE_PICO)
+#if defined(USE_TEENSY)
+//#if defined(USE_TEENSY) || defined(USE_PICO)
 
     while(usbMIDI.read()) {
         uint8_t ch = usbMIDI.getChannel() - 1;
@@ -143,6 +143,7 @@ void modeMidiGbUsbMidiReceive()
             ch = 4;
             send = true;
         }
+
         if(!send) return;
         uint8_t s;
         switch(usbMIDI.getType()) {
@@ -264,44 +265,94 @@ void modeMidiGbUsbMidiReceive()
         statusLedOn();
       } while (rx.header != 0);
 #endif
-#ifdef USE_PICOS
+#ifdef USE_PICO
     while(usbMIDI.read()){
-      
-      u8g2.clearBuffer();
-      u8g2.setFont(u8g2_font_profont22_mf);
-      u8g2.setCursor(45, 20);
-      u8g2.print("mGB");
-      u8g2.setFont(u8g2_font_6x12_tf);
-      u8g2.setCursor(1, 34);
-      switch(usbMIDI.getType()){
-        case 0x80:
-          u8g2.print("NoteOff");
-          break;
-        case 0x90:
-          u8g2.print("NoteOn");
-          break;
-        case 0xB0:
-          u8g2.print("ControlChange");
-          break;
-        case 0xC0:
-          u8g2.print("ProgramChange");
-          break;
-        case 0xE0:
-          u8g2.print("PitchBend");
-          break;
+      uint8_t ch = usbMIDI.getChannel() - 1;
+      boolean send = false;
+      if (ch < 5)
+      {
+        send = true;
+        digitalWrite(PIN_LED, HIGH);
       }
-      // u8g2.print(tipo);
-      // u8g2.print (usbMIDI.getType(),HEX);
-      u8g2.setCursor(1, 44);
-      u8g2.print("nota: ");
-      u8g2.print(usbMIDI.getData1(), HEX);
-      u8g2.setCursor(1, 54);
-      u8g2.print("velocidad: ");
-      u8g2.print(usbMIDI.getData2(), HEX);
-      u8g2.setCursor(1, 64);
-      u8g2.print("canal: ");
-      u8g2.print(usbMIDI.getChannel(), DEC);
-      u8g2.sendBuffer();
+      if (!send)
+        return;
+      uint8_t s;
+      switch (usbMIDI.getType())
+      {
+      case 0x80: // note off
+      case 0x90: // note on
+        s = 0x90 + ch;
+        if (usbMIDI.getType() == 0x80)
+        {
+          s = 0x80 + ch;
+        }
+        sendByteToGameboy(s);
+        delayMicroseconds(GB_MIDI_DELAY);
+        sendByteToGameboy(usbMIDI.getData1());
+        delayMicroseconds(GB_MIDI_DELAY);
+        sendByteToGameboy(usbMIDI.getData2());
+        delayMicroseconds(GB_MIDI_DELAY);
+        blinkLight(s, usbMIDI.getData2());
+        break;
+      case 0xB0: // CC
+        sendByteToGameboy(0xB0 + ch);
+        delayMicroseconds(GB_MIDI_DELAY);
+        sendByteToGameboy(usbMIDI.getData1());
+        delayMicroseconds(GB_MIDI_DELAY);
+        sendByteToGameboy(usbMIDI.getData2());
+        delayMicroseconds(GB_MIDI_DELAY);
+        blinkLight(0xB0 + ch, usbMIDI.getData2());
+        break;
+      case 0xC0: // PG
+        sendByteToGameboy(0xC0 + ch);
+        delayMicroseconds(GB_MIDI_DELAY);
+        sendByteToGameboy(usbMIDI.getData1());
+        delayMicroseconds(GB_MIDI_DELAY);
+        blinkLight(0xC0 + ch, usbMIDI.getData2());
+        break;
+      case 0xE0: // PB
+        sendByteToGameboy(0xE0 + ch);
+        delayMicroseconds(GB_MIDI_DELAY);
+        sendByteToGameboy(usbMIDI.getData1());
+        delayMicroseconds(GB_MIDI_DELAY);
+        sendByteToGameboy(usbMIDI.getData2());
+        delayMicroseconds(GB_MIDI_DELAY);
+        break;
+      }
+      digitalWrite(PIN_LED, LOW);
+      // u8g2.clearBuffer();
+      // u8g2.setFont(u8g2_font_profont22_mf);
+      // u8g2.setCursor(45, 20);
+      // u8g2.print("mGB");
+      // u8g2.setFont(u8g2_font_6x12_tf);
+      // u8g2.setCursor(1, 34);
+      // switch(usbMIDI.getType()){
+      //   case 0x80:
+      //     u8g2.print("NoteOff");
+      //     break;
+      //   case 0x90:
+      //     u8g2.print("NoteOn");
+      //     break;
+      //   case 0xB0:
+      //     u8g2.print("ControlChange");
+      //     break;
+      //   case 0xC0:
+      //     u8g2.print("ProgramChange");
+      //     break;
+      //   case 0xE0:
+      //     u8g2.print("PitchBend");
+      //     break;
+      // }
+      // u8g2.setCursor(1, 44);
+      // u8g2.print("nota: ");
+      // u8g2.print(usbMIDI.getData1(), HEX);
+      // u8g2.setCursor(1, 54);
+      // u8g2.print("velocidad: ");
+      // u8g2.print(usbMIDI.getData2(), HEX);
+      // u8g2.setCursor(1, 64);
+      // u8g2.print("canal: ");
+      // u8g2.print(usbMIDI.getChannel(), DEC);
+      // u8g2.sendBuffer();
     }
 
 #endif

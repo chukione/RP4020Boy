@@ -34,7 +34,7 @@ void programmerSendSettings()
   memcpy(&sysexData[3], memory, MEM_MAX+1);
   sysexData[MEM_MAX+3] = 0xF7;
   serial->write(sysexData, MEM_MAX+4);
-#ifdef USE_TEENSY
+#if defined(USE_TEENSY) || defined(USE_PICO)
   usbMIDI.sendSysEx(MEM_MAX+4, sysexData);
 #endif
 }
@@ -43,7 +43,7 @@ void setProgrammerRequestConnect()
 {
   uint8_t data[4] = {0xF0,sysexManufacturerId,65,0xF7};
   serial->write(data, 4);
-#ifdef USE_TEENSY
+#if defined(USE_TEENSY) || defined(USE_PICO)
   usbMIDI.sendSysEx(4, data);
 #endif
 }
@@ -85,7 +85,7 @@ void programmerSendConnectRequest()
   if(millis() > (sysexProgrammerLastSent+sysexProgrammerCallTime)) {
     uint8_t data[6] = {0xF0, sysexManufacturerId, 0x7F, defaultMemoryMap[MEM_VERSION_FIRST], defaultMemoryMap[MEM_VERSION_SECOND], 0xF7};
     serial->write(data, 6);
-#ifdef USE_TEENSY
+#if defined(USE_TEENSY) || defined(USE_PICO)
     usbMIDI.sendSysEx(6, data);
 #endif
     sysexProgrammerLastSent = millis();
@@ -121,7 +121,9 @@ void setMode(byte mode)
 {
   memory[MEM_MODE] = mode;
   #ifndef USE_DUE
+  #ifndef USE_PICO
   EEPROM.write(MEM_MODE, memory[MEM_MODE]);
+  #endif
   #endif
   showSelectedMode();
   switchMode();
@@ -131,7 +133,7 @@ void sendMode()
 {
   uint8_t data[4] = {0xF0, sysexManufacturerId, memory[MEM_MODE], 0xF7};
   serial->write(data, 4);
-#ifdef USE_TEENSY
+#if defined(USE_TEENSY) || defined(USE_PICO) 
   usbMIDI.sendSysEx(4, data);
 #endif
 }

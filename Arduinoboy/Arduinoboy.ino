@@ -85,26 +85,20 @@
 #define MEM_CHECK 0
 #define MEM_VERSION_FIRST 1
 #define MEM_VERSION_SECOND 2
-#define MEM_MODE 5
 #define MEM_FORCE_MODE 4
-
+#define MEM_MODE 5
 #define MEM_LSDJSLAVE_MIDI_CH 6
-
 #define MEM_LSDJMASTER_MIDI_CH 7
 #define MEM_KEYBD_CH 8
-
 #define MEM_KEYBD_COMPAT_MODE 9
 #define MEM_KEYBD_CH_TO_INST 10
-
 #define MEM_MIDIOUT_NOTE_CH 11
 #define MEM_MIDIOUT_CC_CH 15
 #define MEM_MIDIOUT_CC_MODE 19
 #define MEM_MIDIOUT_CC_SCALING 23
 #define MEM_MIDIOUT_CC_NUMBERS 27
-
 #define MEM_MGB_CH 55
 #define MEM_LIVEMAP_CH 60
-
 #define MEM_MIDIOUT_BIT_DELAY 61
 #define MEM_MIDIOUT_BYTE_DELAY 63
 
@@ -118,14 +112,13 @@
 U8X8_SSD1306_128X64_NONAME_HW_I2C u8x8(U8X8_PIN_NONE);
 #else
 #include <U8g2lib.h>
-#ifndef ARDUINO_ARCH_RP2040
-U8G2_SSD1306_128X64_NONAME_2_HW_I2C u8g2(U8G2_R0, U8X8_PIN_NONE);
-#else
+#ifdef ARDUINO_ARCH_RP2040
 U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, U8X8_PIN_NONE);
 #include "lsdj.h"
 #include "nanoloop.h"
 #include "mgb.h"
-
+#else
+U8G2_SSD1306_128X64_NONAME_2_HW_I2C u8g2(U8G2_R0, U8X8_PIN_NONE);
 #endif
 #include "gfx.h" //splash image
 #endif
@@ -137,14 +130,11 @@ byte defaultMemoryMap[MEM_MAX] = {
   0x7F,0x01,0x03,0x7F, //memory init check
   0x00, //force mode (forces lsdj to be sl)
   0x00, //mode
-
   15, //sync effects midi channel (0-15 = 1-16)
   15, //masterNotePositionMidiChannel - LSDJ in master mode will send its song position on the start button via midi note. (0-15 = 1-16)
-
   15, //keyboardInstrumentMidiChannel - midi channel for keyboard instruments in lsdj. (0-15 = 1-16)
   1, //Keyboard Compatability Mode
   1, //Set to true if you want to have midi channel set the instrument number / doesnt do anything anymore
-
   0,1,2,3, //midiOutNoteMessageChannels - midi channels for lsdj midi out note messages Default: channels 1,2,3,4
   0,1,2,3, //midiOutCCMessageChannels - midi channels for lsdj midi out CC messages Default: channels 1,2,3,4
   1,1,1,1, //midiOutCCMode - CC Mode, 0=use 1 midi CC, with the range of 00-6F, 1=uses 7 midi CCs with the
@@ -154,11 +144,10 @@ byte defaultMemoryMap[MEM_MAX] = {
   1,2,3,7,10,11,12, //pu2
   1,2,3,7,10,11,12, //wav
   1,2,3,7,10,11,12, //noi
-
-  0, 1, 2, 3, 4, //mGB midi channels (0-15 = 1-16)
+  0,1,2,3,4, //mGB midi channels (0-15 = 1-16)
   0, //sync map midi channel start (0-15 = 1-16) (for song rows 0x80 to 0xFF it's this channel plus 1)
   80,1,  //midiout bit check delay & bit check delay multiplier
-  0,0//midiout byte received delay & byte received delay multiplier
+  0,0 //midiout byte received delay & byte received delay multiplier
 };
 byte memory[MEM_MAX];
 
@@ -222,7 +211,6 @@ HardwareSerial *serial = &Serial1;
  ***************************************************************************/
 #elif defined(ARDUINO_ARCH_RP2040)
 #define USE_PICO
-//#define USE_USB 1
 #ifdef OLED
 #include <Wire.h>
 #endif
@@ -237,7 +225,7 @@ Adafruit_USBD_MIDI usb_midi;
 // MIDI_CREATE_INSTANCE(Adafruit_USBD_MIDI, usb_midi, usbMIDI);
 MIDI_CREATE_INSTANCE(Adafruit_USBD_MIDI, usb_midi, usbMIDI);
 
-#define GB_SET(bit_cl, bit_out, bit_in) digitalWriteFast(26, bit_cl); digitalWriteFast(27, bit_out); digitalWriteFast(28, bit_in);
+#define GB_SET(bit_cl, bit_out, bit_in) digitalWriteFast(D26, bit_cl); digitalWriteFast(D27, bit_out); digitalWriteFast(D28, bit_in);
 // ^ The reason for not using digitalWrite is to allign clock and data pins for the GB shift reg.
 // Pin distribution comes from official Arduino Leonardo documentation
 
@@ -305,11 +293,11 @@ HardwareSerial *serial = &Serial;
 /***************************************************************************
 * Memory
 ***************************************************************************/
-#if !defined(USE_DUE) || !defined(USE_PICO)
-    #include <EEPROM.h>
-    boolean alwaysUseDefaultSettings = false; //set to true to always use the settings below, else they are pulled from memory for the software editor
+#if !defined(USE_DUE) && !defined(USE_PICO)
+#include <EEPROM.h>
+boolean alwaysUseDefaultSettings = false; //set to true to always use the settings below, else they are pulled from memory for the software editor
 #else
-    boolean alwaysUseDefaultSettings = true; //set to true to always use the default settings, in Due board is necessary as it doesn't have EEPROM
+boolean alwaysUseDefaultSettings = true; //set to true to always use the default settings, in pico board is necessary as it doesn't have EEPROM
 #endif
 
 int eepromMemoryByte = 0; //Location of where to store settings from mem
@@ -533,6 +521,8 @@ u8g2.sendBuffer();
   pinMode(pinLeds[led],OUTPUT);
  }
 
+  pinMode(PIN_LED,OUTPUT);
+
   pinMode(pinStatusLed, OUTPUT);
   #ifndef USE_PICO 
   pinMode(pinButtonMode,INPUT);
@@ -594,7 +584,7 @@ u8g2.sendBuffer();
   Load Settings from EEPROM
 */
 
-  #if !defined(USE_DUE) || !defined(USE_PICO)
+  #if !defined(USE_DUE) && !defined(USE_PICO)
   if(!memory[MEM_FORCE_MODE]) memory[MEM_MODE] = EEPROM.read(MEM_MODE);
   #endif
   lastMode = memory[MEM_MODE];

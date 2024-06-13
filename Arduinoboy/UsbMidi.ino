@@ -1,5 +1,5 @@
 
-#if !defined(USE_TEENSY) || !defined(USE_PICO)
+#if !defined(USE_TEENSY)  && !defined(USE_PICO)
 void usbMidiSendTwoByteMessage(uint8_t b1, uint8_t b2) {};
 void usbMidiSendThreeByteMessage(uint8_t b1, uint8_t b2, uint8_t b3) {};
 void usbMidiSendRTMessage(uint8_t b) {};
@@ -7,6 +7,7 @@ void usbMidiHandleSysEx(const uint8_t *data, uint16_t length, bool complete) {};
 void usbMidiInit() {};
 void usbMidiUpdate() {};
 #else
+
 
 void usbMidiSendTwoByteMessage(uint8_t b1, uint8_t b2)
 {
@@ -26,18 +27,24 @@ void usbMidiSendThreeByteMessage(uint8_t b1, uint8_t b2, uint8_t b3)
     switch(midiData[0] & 0xF0) {
         case 0x80:
           usbMIDI.sendNoteOff(b2, b3, channel);
+          #ifndef USE_PICO
           usbMIDI.send_now();
+          #endif
           break;
         case 0x90:
           usbMIDI.sendNoteOn(b2, b3, channel);
+          #ifndef USE_PICO
           usbMIDI.send_now();
+          #endif
           break;
         case 0xA0:
           usbMIDI.sendPolyPressure(b2, b3, channel);
           break;
         case 0xB0:
           usbMIDI.sendControlChange(b2, b3, channel);
+          #ifndef USE_PICO
           usbMIDI.send_now();
+          #endif
           break;
         case 0xE0:
           unsigned short v = (unsigned short)b3;
@@ -50,7 +57,12 @@ void usbMidiSendThreeByteMessage(uint8_t b1, uint8_t b2, uint8_t b3)
 
 void usbMidiSendRTMessage(uint8_t b)
 {
+    #ifdef USE_PICO
+    usbMIDI.sendRealTime((midi::MidiType)b);
+    #else
     usbMIDI.sendRealTime(b);
+    #endif
+
 }
 
 void usbMidiUpdate()
@@ -87,7 +99,11 @@ void usbMidiHandleSysEx(const uint8_t *data, uint16_t length, bool complete)
 
 void usbMidiInit()
 {
+    #ifdef USE_PICO
+    usbMIDI.setHandleSystemExclusive((midi::SystemExclusiveCallback)usbMidiHandleSysEx);
+    #else
     usbMIDI.setHandleSysEx(usbMidiHandleSysEx);
+    #endif
 }
 
 #endif

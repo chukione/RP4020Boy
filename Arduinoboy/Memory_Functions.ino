@@ -2,7 +2,7 @@
 boolean checkMemory()
 {
   byte chk;
-  #if !defined(USE_DUE) || !defined(USE_PICO)
+  #if !defined(USE_DUE) && !defined(USE_PICO)
   for(int m=0;m<4;m++){
     chk =  EEPROM.read(MEM_CHECK+m);
     if(chk != defaultMemoryMap[MEM_CHECK+m]) {
@@ -16,7 +16,7 @@ boolean checkMemory()
 void initMemory(boolean reinit)
 {
   if(!alwaysUseDefaultSettings) {
-    #if !defined(USE_DUE) || !defined(USE_PICO)
+    #if !defined(USE_DUE) && !defined(USE_PICO)
     if(reinit || !checkMemory()) {
       for(int m=(MEM_MAX);m>=0;m--){
         EEPROM.write(m,defaultMemoryMap[m]);
@@ -35,7 +35,7 @@ void initMemory(boolean reinit)
 
 void loadMemory()
 {
-  #if !defined(USE_DUE) || !defined(USE_PICO)
+  #if !defined(USE_DUE) && !defined(USE_PICO)
   for(int m=(MEM_MAX);m>=0;m--){
      memory[m] = EEPROM.read(m);
   }
@@ -52,7 +52,7 @@ void printMemory()
 
 void saveMemory()
 {
-  #if !defined(USE_DUE) || !defined(USE_PICO)
+  #if !defined(USE_DUE) && !defined(USE_PICO)
   for(int m=(MEM_MAX-1);m>=0;m--){
     EEPROM.write(m,memory[m]);
   }
