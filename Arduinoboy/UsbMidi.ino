@@ -38,7 +38,11 @@ void usbMidiSendThreeByteMessage(uint8_t b1, uint8_t b2, uint8_t b3)
           #endif
           break;
         case 0xA0:
+          #ifdef USE_TEENSY
           usbMIDI.sendPolyPressure(b2, b3, channel);
+          #else
+          usbMIDI.sendAfterTouch((midi::DataByte)b2, (midi::DataByte)b3, (midi::Channel)channel);
+          #endif
           break;
         case 0xB0:
           usbMIDI.sendControlChange(b2, b3, channel);

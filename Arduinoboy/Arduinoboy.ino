@@ -129,7 +129,7 @@ boolean usbMode = false; //to use usb for serial communication as oppose to MIDI
 byte defaultMemoryMap[MEM_MAX] = {
   0x7F,0x01,0x03,0x7F, //memory init check
   0x00, //force mode (forces lsdj to be sl)
-  0x00, //mode
+  0x04, //mode
   15, //sync effects midi channel (0-15 = 1-16)
   15, //masterNotePositionMidiChannel - LSDJ in master mode will send its song position on the start button via midi note. (0-15 = 1-16)
   15, //keyboardInstrumentMidiChannel - midi channel for keyboard instruments in lsdj. (0-15 = 1-16)
@@ -222,20 +222,18 @@ HardwareSerial *serial = &Serial1;
 Adafruit_USBD_MIDI usb_midi;
 // Create a new instance of the Arduino MIDI Library,
 // and attach usb_midi as the transport.
-// MIDI_CREATE_INSTANCE(Adafruit_USBD_MIDI, usb_midi, usbMIDI);
 MIDI_CREATE_INSTANCE(Adafruit_USBD_MIDI, usb_midi, usbMIDI);
 
 #define GB_SET(bit_cl, bit_out, bit_in) digitalWriteFast(D26, bit_cl); digitalWriteFast(D27, bit_out); digitalWriteFast(D28, bit_in);
 // ^ The reason for not using digitalWrite is to allign clock and data pins for the GB shift reg.
-// Pin distribution comes from official Arduino Leonardo documentation
 
 int pinGBClock = A0;                // Analog In 0 - clock out to gameboy
 int pinGBSerialOut = A1;            // Analog In 1 - serial data to gameboy
 int pinGBSerialIn = A2;             // Analog In 2 - serial data from gameboy
 int pinMidiInputPower = D10;        // power pin for midi input opto-isolator
-int pinStatusLed = D8;              // Status LED
-int pinLeds[] = {D2, D3, D4, D5, D6, D7}; // LED Pins
-int pinButtonMode = D20;                  // toggle button for selecting the mode
+int pinStatusLed = D17;              // Status LED
+int pinLeds[] = {D25, D24, D23, D22, D21, D20}; // LED Pins
+int pinButtonMode = D6;                  // toggle button for selecting the mode
 
 HardwareSerial *serial = &Serial1;
 
@@ -474,8 +472,8 @@ void setup() {
  usb_midi.setStringDescriptor("picoBoy MIDI");
  usbMIDI.begin(MIDI_CHANNEL_OMNI);
  while(!TinyUSBDevice.mounted()) delay(1);
- Wire.setSDA(16u);
- Wire.setSCL(17u);
+ Wire.setSDA(4u);
+ Wire.setSCL(5u);
  Wire.begin();
 #endif
 #ifndef OLED_GFX
@@ -547,8 +545,8 @@ u8g2.sendBuffer();
     #ifdef USE_LEONARDO
       Serial1.begin(31250); //31250
     #elif defined (USE_PICO)
-      Serial1.setTX(12u);
-      Serial1.setRX(13u);
+      Serial1.setTX(0u);
+      Serial1.setRX(1u);
       Serial1.begin(31250); //31250
     #else
       Serial.begin(31250); //31250

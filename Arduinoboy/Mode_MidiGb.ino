@@ -105,9 +105,15 @@ void sendByteToGameboy(byte send_byte)
  for(countLSDJTicks=0;countLSDJTicks!=8;countLSDJTicks++) {  //we are going to send 8 bits, so do a loop 8 times
    if(send_byte & 0x80) {
        GB_SET(0,1,0);
+       #ifdef USE_PICO
+       delayMicroseconds(1);
+       #endif
        GB_SET(1,1,0);
    } else {
        GB_SET(0,0,0);
+       #ifdef USE_PICO
+       delayMicroseconds(1);
+       #endif
        GB_SET(1,0,0);
    }
 
@@ -269,7 +275,7 @@ void modeMidiGbUsbMidiReceive()
     while(usbMIDI.read()){
       uint8_t ch = usbMIDI.getChannel() - 1;
       boolean send = false;
-      if (ch < 5)
+      if (ch <= 5)
       {
         send = true;
         digitalWrite(PIN_LED, HIGH);
@@ -319,7 +325,7 @@ void modeMidiGbUsbMidiReceive()
         delayMicroseconds(GB_MIDI_DELAY);
         break;
       }
-      digitalWrite(PIN_LED, LOW);
+      // digitalWrite(PIN_LED, LOW);
       // u8g2.clearBuffer();
       // u8g2.setFont(u8g2_font_profont22_mf);
       // u8g2.setCursor(45, 20);

@@ -18,14 +18,14 @@ void initMemory(boolean reinit)
   if(!alwaysUseDefaultSettings) {
     #if !defined(USE_DUE) && !defined(USE_PICO)
     if(reinit || !checkMemory()) {
-      for(int m=(MEM_MAX);m>=0;m--){
+      for(int m=0;m<MEM_MAX;m++){
         EEPROM.write(m,defaultMemoryMap[m]);
       }
     }
     #endif
     loadMemory();
   } else {
-    for(int m=0;m<=MEM_MAX;m++){
+    for(int m=0;m<MEM_MAX;m++){
       memory[m] = defaultMemoryMap[m];
     }
   }
@@ -36,7 +36,7 @@ void initMemory(boolean reinit)
 void loadMemory()
 {
   #if !defined(USE_DUE) && !defined(USE_PICO)
-  for(int m=(MEM_MAX);m>=0;m--){
+  for(int m=0; m<MEM_MAX;m++){
      memory[m] = EEPROM.read(m);
   }
   #endif
@@ -45,7 +45,7 @@ void loadMemory()
 
 void printMemory()
 {
-  for(int m=0;m<=MEM_MAX;m++){
+  for(int m=0;m<MEM_MAX;m++){
     serial->println(memory[m],HEX);
   }
 }
@@ -53,7 +53,7 @@ void printMemory()
 void saveMemory()
 {
   #if !defined(USE_DUE) && !defined(USE_PICO)
-  for(int m=(MEM_MAX-1);m>=0;m--){
+  for(int m=0; m<MEM_MAX;m++){
     EEPROM.write(m,memory[m]);
   }
   changeTasks();
