@@ -325,6 +325,9 @@ void modeMidiGbUsbMidiReceive()
         delayMicroseconds(GB_MIDI_DELAY);
         break;
       }
+      uint32_t mididata = (uint32_t)usbMIDI.getType() | ((uint32_t)usbMIDI.getChannel() << 8) | ((uint32_t)usbMIDI.getData1() << 16) | ((uint32_t)usbMIDI.getData2() << 24);
+      rp2040.fifo.push_nb(mididata);
+
       // digitalWrite(PIN_LED, LOW);
       // u8g2.clearBuffer();
       // u8g2.setFont(u8g2_font_profont22_mf);

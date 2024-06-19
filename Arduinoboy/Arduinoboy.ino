@@ -604,3 +604,84 @@ void loop () {
   setMode();
   switchMode();
 }
+#ifdef USE_PICO //draw data with core2 on rp2040 because u8g2 draw too slow on the i2c display
+
+void setup1()
+{
+  
+}
+void loop1()
+{
+  if (memory[MEM_MODE] == 4){ //for the momment only draw info for mGB
+      while (uint32_t mididata = rp2040.fifo.pop()){
+        byte tipo = (mididata & 0x000000ff);
+        byte canal = (mididata & 0x0000ff00) >> 8;
+        byte data1 = (mididata & 0x00ff0000) >> 16;
+        byte data2 = (mididata & 0xff000000) >> 24;
+
+        u8g2.clearBuffer();
+        u8g2.setFont(u8g2_font_profont22_mf);
+        switch (memory[MEM_MODE]){
+          case 0:
+            u8g2.setCursor(5, 20);
+            u8g2.print("LSDJ SLV");
+          break;
+          case 1:
+            u8g2.setCursor(4, 20);
+            u8g2.print("LSDJ MSTR");
+          break;
+          case 2:
+            u8g2.setCursor(5, 20);
+            u8g2.print("LSDJ KBR");
+          break;
+          case 3:
+            u8g2.setCursor(4, 20);
+            u8g2.print("NANOLOOP");
+          break;
+          case 4:
+            u8g2.setCursor(45, 20);
+            u8g2.print("mGB");
+          break;
+          case 5:
+            u8g2.print("LSDJ MAP");
+            u8g2.setCursor(5, 20);
+          break;
+          case 6:
+            u8g2.print("LSDJ MIDI");
+            u8g2.setCursor(5, 20);
+          break;
+      }
+      u8g2.setFont(u8g2_font_6x12_tf);
+      u8g2.setCursor(1, 34);
+      switch(tipo){
+        case 0x80:
+          u8g2.print("NoteOff");
+          break;
+        case 0x90:
+          u8g2.print("NoteOn");
+          break;
+        case 0xB0:
+          u8g2.print("ControlChange");
+          break;
+        case 0xC0:
+          u8g2.print("ProgramChange");
+          break;
+        case 0xE0:
+          u8g2.print("PitchBend");
+          break;
+      }
+      u8g2.setCursor(1, 44);
+      u8g2.print("note: ");
+      u8g2.print(data1, HEX);
+      u8g2.setCursor(1, 54);
+      u8g2.print("velocity: ");
+      u8g2.print(data2, HEX);
+      u8g2.setCursor(1, 64);
+      u8g2.print("channel: ");
+      u8g2.print(canal, DEC);
+      u8g2.sendBuffer();
+    }
+
+  }
+}
+#endif
