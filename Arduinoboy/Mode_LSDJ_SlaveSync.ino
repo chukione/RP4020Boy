@@ -89,7 +89,13 @@ void sendClockTickToLSDJ()
 {
   for(countLSDJTicks=0;countLSDJTicks<8;countLSDJTicks++) {
     GB_SET(0,0,0);
+#ifdef USE_PICO
+    delayMicroseconds(1);
+#endif
     GB_SET(1,0,0);
+#ifdef USE_PICO
+    delayMicroseconds(1);
+#endif
   }
 }
 
@@ -160,7 +166,7 @@ void usbMidiLSDJSlaveRealtimeMessage(uint8_t message)
 
 void modeLSDJSlaveSyncUsbMidiReceive()
 {
-#ifdef USE_TEENSY
+#if defined(USE_TEENSY) || defined(USE_PICO)
 
     while(usbMIDI.read(memory[MEM_LSDJSLAVE_MIDI_CH]+1)) {
         switch(usbMIDI.getType()) {

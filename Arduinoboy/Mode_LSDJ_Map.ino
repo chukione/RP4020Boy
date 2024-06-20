@@ -171,7 +171,7 @@ void usbMidiLSDJMapRealtimeMessage(uint8_t message)
 
 void modeLSDJMapUsbMidiReceive()
 {
-#ifdef USE_TEENSY
+#if defined(USE_TEENSY) || defined(USE_PICO)
 
     while(usbMIDI.read()) {
         uint8_t ch = usbMIDI.getChannel() - 1;

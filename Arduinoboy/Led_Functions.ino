@@ -6,6 +6,7 @@
  */
 void showSelectedMode()
 {
+  #ifndef USE_PICO
   digitalWrite(pinStatusLed,LOW);
 
   for(int m=0;m<3;m++) {
@@ -43,6 +44,7 @@ void showSelectedMode()
   }
   lastMode = memory[MEM_MODE];
   delay(300);
+  #endif
 }
 
 void updateVisualSync()

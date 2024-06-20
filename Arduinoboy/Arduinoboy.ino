@@ -515,6 +515,7 @@ u8g2.sendBuffer();
    Init Pins
  */
 
+  #ifndef USE_PICO 
  for (int led = 0; led <= 5; led++) {
   pinMode(pinLeds[led],OUTPUT);
  }
@@ -522,7 +523,6 @@ u8g2.sendBuffer();
   pinMode(PIN_LED,OUTPUT);
 
   pinMode(pinStatusLed, OUTPUT);
-  #ifndef USE_PICO 
   pinMode(pinButtonMode,INPUT);
   #else
   pinMode(pinButtonMode,INPUT_PULLDOWN);
@@ -605,14 +605,15 @@ void loop () {
   switchMode();
 }
 #ifdef USE_PICO //draw data with core2 on rp2040 because u8g2 draw too slow on the i2c display
-
+#include "notes.h"
 void setup1()
 {
   
 }
 void loop1()
 {
-  if (memory[MEM_MODE] == 4){ //for the momment only draw info for mGB
+  if (memory[MEM_MODE] == 4){ //for now only draw info for mGB mode
+
       while (uint32_t mididata = rp2040.fifo.pop()){
         byte tipo = (mididata & 0x000000ff);
         byte canal = (mididata & 0x0000ff00) >> 8;
@@ -672,7 +673,8 @@ void loop1()
       }
       u8g2.setCursor(1, 44);
       u8g2.print("note: ");
-      u8g2.print(data1, HEX);
+      // u8g2.print(data1, HEX);
+      u8g2.print(notes[data1]);
       u8g2.setCursor(1, 54);
       u8g2.print("velocity: ");
       u8g2.print(data2, HEX);

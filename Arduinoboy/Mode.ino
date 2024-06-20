@@ -27,16 +27,15 @@
 void setMode()
 {
   buttonDepressed = digitalRead(pinButtonMode);
-  //u8x8_DrawString(u8g2.getU8x8(), 2, 2, "setmode");
   if(!memory[MEM_FORCE_MODE] && buttonDepressed) { //if the button is pressed
     memory[MEM_MODE]++;                           //increment the mode number
     if(memory[MEM_MODE] > (NUMBER_OF_MODES - 1)) memory[MEM_MODE]=0;  //if the mode is greater then 4 it will wrap back to 0
-    #ifndef USE_DUE
-    #ifndef USE_PICO
+    #if !defined(USE_DUE) && !defined(USE_PICO)
     if(!memory[MEM_FORCE_MODE]) EEPROM.write(MEM_MODE, memory[MEM_MODE]); //write mode to eeprom if we arnt forcing a mode in the config
     #endif
-    #endif
+  
     showSelectedMode();            //set the LEDS
+  
     switchMode();
   }
 }
@@ -68,9 +67,6 @@ void switchMode()
       u8g2.setFont(u8g2_font_profont22_mf);
       u8g2.drawStr(10, 62, "SlaveSync");
       u8g2.sendBuffer();
-      // u8x8_ClearLine(u8g2.getU8x8(), 7);
-      // u8x8_ClearLine(u8g2.getU8x8(), 8);
-      // u8x8_DrawString(u8g2.getU8x8(), 4, 7, "SlaveSync");
       #endif
       #endif
       #endif
@@ -248,9 +244,11 @@ void sequencerStop()
   countSyncTime = 0;          //Used to count a custom amount of clock ticks (2/4/8) for sync effects
   countSyncLightTime=0;
   switchLight=0;
+  #ifndef USE_PICO
   digitalWrite(pinLeds[0],LOW);
   digitalWrite(pinLeds[1],LOW);
   digitalWrite(pinLeds[2],LOW);
   digitalWrite(pinLeds[3],LOW);
   digitalWrite(pinLeds[memory[MEM_MODE]],HIGH);
+  #endif
 }

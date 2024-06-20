@@ -30,7 +30,7 @@ void modeLSDJMasterSync()
 {
   while(1){
 
-#ifdef USE_TEENSY
+#if defined(USE_TEENSY) || defined(USE_PICO)
     while(usbMIDI.read()) ;
 #endif
 
@@ -80,8 +80,11 @@ boolean checkLSDJStopped()
 #ifdef USE_TEENSY
       usbMIDI.sendRealTime(0xFC);
 #endif
+#ifdef USE_PICO
+      usbMIDI.sendRealTime((midi::MidiType)0xFC);
+#endif
 #ifdef USE_LEONARDO
-      midiEventPacket_t event = {0x0F, 0xFC};
+          midiEventPacket_t event = {0x0F, 0xFC};
       MidiUSB.sendMIDI(event);
       MidiUSB.flush();
 #endif
@@ -107,9 +110,13 @@ void sendMidiClockSlaveFromLSDJ()
       serial->write(0x7F);                          //Send a velocity 127
       serial->write(0xFA);     //send MIDI transport start message
 
-#ifdef USE_TEENSY
+#ifdef USE_TEENSY  
       usbMIDI.sendNoteOn(memory[MEM_LSDJMASTER_MIDI_CH]+1,readGbSerialIn,0x7F);
       usbMIDI.sendRealTime(0xFA);
+#endif
+#ifdef USE_PICO
+      usbMIDI.sendNoteOn(memory[MEM_LSDJMASTER_MIDI_CH] + 1, readGbSerialIn, 0x7F);
+      usbMIDI.sendRealTime((midi::MidiType)0xFA);
 #endif
 #ifdef USE_LEONARDO
       midiEventPacket_t event = {0x09, 0x90 | memory[MEM_LSDJMASTER_MIDI_CH] + 1, readGbSerialIn, 0x7F};
@@ -125,6 +132,9 @@ void sendMidiClockSlaveFromLSDJ()
 
 #ifdef USE_TEENSY
     usbMIDI.sendRealTime(0xF8);
+#endif
+#ifdef USE_PICO
+    usbMIDI.sendRealTime((midi::MidiType)0xF8);
 #endif
 #ifdef USE_LEONARDO
     midiEventPacket_t event = {0x0F, 0xF8};

@@ -237,7 +237,7 @@ void sendKeyboardByteToGameboy(byte send_byte)
 
 void modeLSDJKeyboardMidiReceive()
 {
-#ifdef USE_TEENSY
+#if defined(USE_TEENSY) || defined(USE_PICO)
 
     while(usbMIDI.read(memory[MEM_KEYBD_CH]+1)) {
         switch(usbMIDI.getType()) {

@@ -72,15 +72,30 @@ boolean sendTickToNanoloop(boolean state, boolean last_state)
   if(!state) {
     if(last_state) {
        GB_SET(0,1,0);
+#ifdef USE_PICO
+       delayMicroseconds(1);
+#endif
        GB_SET(1,1,0);
     } else {
        GB_SET(0,0,0);
+#ifdef USE_PICO
+       delayMicroseconds(1);
+#endif
        GB_SET(1,0,0);
     }
+#ifdef USE_PICO
+    delayMicroseconds(1);
+#endif
     return true;
   } else {
     GB_SET(0,1,0);
+#ifdef USE_PICO
+    delayMicroseconds(1);
+#endif
     GB_SET(1,1,0);
+#ifdef USE_PICO
+    delayMicroseconds(1);
+#endif
     return false;
   }
 }
@@ -113,7 +128,7 @@ void usbMidiNanoloopRealtimeMessage(uint8_t message)
 
 void modeNanoloopUsbMidiReceive()
 {
-#ifdef USE_TEENSY
+#if defined(USE_TEENSY) || defined(USE_PICO)
     while(usbMIDI.read(memory[MEM_LSDJSLAVE_MIDI_CH]+1)) {
         switch(usbMIDI.getType()) {
             case 0x90: // note on
