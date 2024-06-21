@@ -13,7 +13,9 @@
 
 void modeLSDJMapSetup()
 {
+  #ifndef USE_PICO
   digitalWrite(pinStatusLed,LOW);
+  #endif
   pinMode(pinGBClock,OUTPUT);
   digitalWrite(pinGBClock, HIGH);
  #ifdef USE_TEENSY
@@ -88,9 +90,13 @@ void modeLSDJMap()
     }
   } else {
     setMode();         //Check if the mode button was depressed
+    #ifndef USE_PICO
     updateStatusLight();
+    #endif
     checkMapQueue();
+    #ifndef USE_PICO
     updateBlinkLights();
+    #endif
   }
   }
 }
@@ -146,7 +152,9 @@ void checkMapQueue()
           }
       }
       mapQueueMessage=-1;
+      #ifndef USE_PICO
       updateVisualSync();
+      #endif
   }
 }
 

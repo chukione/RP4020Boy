@@ -13,7 +13,9 @@
 
 void modeMidiGbSetup()
 {
-  digitalWrite(pinStatusLed,LOW);
+  #ifndef USE_PICO
+  digitalWrite(pinStatusLed, LOW);
+  #endif
   pinMode(pinGBClock,OUTPUT);
   digitalWrite(pinGBClock,HIGH);
 
@@ -65,7 +67,9 @@ void modeMidiGb()
               midiAddressMode=false;
             }
             if(sendByte) {
+              #ifndef USE_PICO
               statusLedOn();
+              #endif
               sendByteToGameboy(midiData[0]);
               delayMicroseconds(GB_MIDI_DELAY);
               midiValueMode  =false;
@@ -86,13 +90,17 @@ void modeMidiGb()
 
         sendByteToGameboy(midiData[2]);
         delayMicroseconds(GB_MIDI_DELAY);
+        #ifndef USE_PICO
         statusLedOn();
         blinkLight(midiData[0],midiData[2]);
+        #endif
       }
     } else {
       setMode();                // Check if mode button was depressed
+      #ifndef USE_PICO
       updateBlinkLights();
       updateStatusLed();
+      #endif
     }
   }
 }
@@ -192,8 +200,9 @@ void modeMidiGbUsbMidiReceive()
                 delayMicroseconds(GB_MIDI_DELAY);
             break;
         }
-
+        #ifndef USE_PICO
         statusLedOn();
+        #endif
     }
 #endif
 
@@ -298,7 +307,6 @@ void modeMidiGbUsbMidiReceive()
         delayMicroseconds(GB_MIDI_DELAY);
         sendByteToGameboy(usbMIDI.getData2());
         delayMicroseconds(GB_MIDI_DELAY);
-        blinkLight(s, usbMIDI.getData2());
         break;
       case 0xB0: // CC
         sendByteToGameboy(0xB0 + ch);
@@ -307,14 +315,12 @@ void modeMidiGbUsbMidiReceive()
         delayMicroseconds(GB_MIDI_DELAY);
         sendByteToGameboy(usbMIDI.getData2());
         delayMicroseconds(GB_MIDI_DELAY);
-        blinkLight(0xB0 + ch, usbMIDI.getData2());
         break;
       case 0xC0: // PG
         sendByteToGameboy(0xC0 + ch);
         delayMicroseconds(GB_MIDI_DELAY);
         sendByteToGameboy(usbMIDI.getData1());
         delayMicroseconds(GB_MIDI_DELAY);
-        blinkLight(0xC0 + ch, usbMIDI.getData2());
         break;
       case 0xE0: // PB
         sendByteToGameboy(0xE0 + ch);
@@ -327,41 +333,6 @@ void modeMidiGbUsbMidiReceive()
       }
       uint32_t mididata = (uint32_t)usbMIDI.getType() | ((uint32_t)usbMIDI.getChannel() << 8) | ((uint32_t)usbMIDI.getData1() << 16) | ((uint32_t)usbMIDI.getData2() << 24);
       rp2040.fifo.push_nb(mididata);
-
-      // digitalWrite(PIN_LED, LOW);
-      // u8g2.clearBuffer();
-      // u8g2.setFont(u8g2_font_profont22_mf);
-      // u8g2.setCursor(45, 20);
-      // u8g2.print("mGB");
-      // u8g2.setFont(u8g2_font_6x12_tf);
-      // u8g2.setCursor(1, 34);
-      // switch(usbMIDI.getType()){
-      //   case 0x80:
-      //     u8g2.print("NoteOff");
-      //     break;
-      //   case 0x90:
-      //     u8g2.print("NoteOn");
-      //     break;
-      //   case 0xB0:
-      //     u8g2.print("ControlChange");
-      //     break;
-      //   case 0xC0:
-      //     u8g2.print("ProgramChange");
-      //     break;
-      //   case 0xE0:
-      //     u8g2.print("PitchBend");
-      //     break;
-      // }
-      // u8g2.setCursor(1, 44);
-      // u8g2.print("nota: ");
-      // u8g2.print(usbMIDI.getData1(), HEX);
-      // u8g2.setCursor(1, 54);
-      // u8g2.print("velocidad: ");
-      // u8g2.print(usbMIDI.getData2(), HEX);
-      // u8g2.setCursor(1, 64);
-      // u8g2.print("canal: ");
-      // u8g2.print(usbMIDI.getChannel(), DEC);
-      // u8g2.sendBuffer();
     }
 
 #endif

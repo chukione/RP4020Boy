@@ -3,11 +3,17 @@ void modeProgrammer()
   while(sysexProgrammingConnected || sysexProgrammingMode) {
     checkProgrammerConnected();
     if (serial->available()) checkForProgrammerSysex(serial->read());
+    #ifndef USE_PICO
     updateProgrammerLeds();
+    #endif
     setMode();
     usbMidiUpdate();
   }
+  #ifndef USE_PICO
   showSelectedMode();
+  #else
+  ShowSelectedModeOled();
+  #endif
   switchMode();
 }
 
@@ -123,7 +129,11 @@ void setMode(byte mode)
   #if !defined(USE_DUE) && !defined(USE_PICO)
   EEPROM.write(MEM_MODE, memory[MEM_MODE]);
   #endif
+  #ifndef USE_PICO
   showSelectedMode();
+  #else
+  ShowSelectedModeOled();
+  #endif
   switchMode();
 }
 
@@ -219,7 +229,9 @@ boolean checkForProgrammerSysex(byte sin)
 
 void blinkSelectedLight(int led)
 {
+  #ifndef USE_PICO
       if(!blinkSwitch[led]) digitalWrite(pinLeds[led],HIGH);
       blinkSwitch[led]=1;
       blinkSwitchTime[led]=0;
+  #endif
 }

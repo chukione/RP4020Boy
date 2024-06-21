@@ -13,7 +13,9 @@
 
 void modeLSDJMidioutSetup()
 {
-  digitalWrite(pinStatusLed,LOW);
+  #ifndef USE_PICO
+  digitalWrite(pinStatusLed, LOW);
+  #endif
   pinMode(pinGBClock,OUTPUT);
   digitalWrite(pinGBClock,HIGH);
 
@@ -94,7 +96,9 @@ void modeLSDJMidiout()
 
       } else {
         setMode();                // Check if mode button was depressed
+        #ifndef USE_PICO
         updateBlinkLights();
+        #endif
 #if defined(USE_TEENSY) || defined(USE_PICO)
         while(usbMIDI.read()) ;
 #endif
@@ -126,7 +130,9 @@ void midioutDoAction(byte m, byte v)
     m-=8;
     playPC(m,v);
   }
+  #ifndef USE_PICO
   blinkLight(0x90+m,v);
+  #endif
 }
 
 void checkStopNote(byte m)

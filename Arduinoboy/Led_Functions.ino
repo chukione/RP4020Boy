@@ -4,9 +4,9 @@
    and delays for a period of time to reduce jitter behavior from the mode
    changing too fast.
  */
+#ifndef USE_PICO
 void showSelectedMode()
 {
-  #ifndef USE_PICO
   digitalWrite(pinStatusLed,LOW);
 
   for(int m=0;m<3;m++) {
@@ -44,7 +44,6 @@ void showSelectedMode()
   }
   lastMode = memory[MEM_MODE];
   delay(300);
-  #endif
 }
 
 void updateVisualSync()
@@ -307,3 +306,4 @@ void startupSequence()
   delay(500);
 
 }
+#endif

@@ -13,7 +13,9 @@
 
 void modeLSDJSlaveSyncSetup()
 {
-  digitalWrite(pinStatusLed,LOW);
+  #ifndef USE_PICO
+  digitalWrite(pinStatusLed, LOW);
+  #endif
   pinMode(pinGBClock,OUTPUT);
   digitalWrite(pinGBClock,HIGH);
 
@@ -43,7 +45,9 @@ void modeLSDJSlaveSync()
                 //sendByteToGameboy(midiDefaultStartOffset);              //send the offset
               }
               sendClockTickToLSDJ();                                   //send the clock tick
+              #ifndef USE_PICO
               updateVisualSync();
+              #endif
         }
         if(midiSyncEffectsTime) {                                      //If sync effects are turned on
           countSyncTime++;                                             //increment our tick counter
@@ -77,7 +81,9 @@ void modeLSDJSlaveSync()
     }
   }
   setMode();         //Check if the mode button was depressed
+  #ifndef USE_PICO
   updateStatusLight();
+  #endif
   }
 }
 
@@ -146,7 +152,9 @@ void usbMidiLSDJSlaveRealtimeMessage(uint8_t message)
                   //sendByteToGameboy(midiDefaultStartOffset);              //send the offset
                 }
                 sendClockTickToLSDJ();                                   //send the clock tick
+                #ifndef USE_PICO
                 updateVisualSync();
+                #endif
           }
           if(midiSyncEffectsTime) {                                      //If sync effects are turned on
             countSyncTime++;                                             //increment our tick counter
@@ -210,7 +218,9 @@ void modeLSDJSlaveSyncUsbMidiReceive()
             //sendByteToGameboy(midiDefaultStartOffset);              //send the offset
           }
           sendClockTickToLSDJ(); //send the clock tick
+          #ifndef USE_PICO
           updateVisualSync();
+          #endif
         }
         if (midiSyncEffectsTime)
         {                                                 //If sync effects are turned on

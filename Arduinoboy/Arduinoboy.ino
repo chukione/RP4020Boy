@@ -129,7 +129,7 @@ boolean usbMode = false; //to use usb for serial communication as oppose to MIDI
 byte defaultMemoryMap[MEM_MAX] = {
   0x7F,0x01,0x03,0x7F, //memory init check
   0x00, //force mode (forces lsdj to be sl)
-  0x04, //mode
+  0x00, //mode
   15, //sync effects midi channel (0-15 = 1-16)
   15, //masterNotePositionMidiChannel - LSDJ in master mode will send its song position on the start button via midi note. (0-15 = 1-16)
   15, //keyboardInstrumentMidiChannel - midi channel for keyboard instruments in lsdj. (0-15 = 1-16)
@@ -207,7 +207,7 @@ HardwareSerial *serial = &Serial1;
 
 
 /***************************************************************************
- * Raspberry pi nano (rp2040)
+ * Raspberry pi pico (rp2040)
  ***************************************************************************/
 #elif defined(ARDUINO_ARCH_RP2040)
 #define USE_PICO
@@ -231,8 +231,8 @@ int pinGBClock = A0;                // Analog In 0 - clock out to gameboy
 int pinGBSerialOut = A1;            // Analog In 1 - serial data to gameboy
 int pinGBSerialIn = A2;             // Analog In 2 - serial data from gameboy
 int pinMidiInputPower = D10;        // power pin for midi input opto-isolator
-int pinStatusLed = D17;              // Status LED
-int pinLeds[] = {D25, D24, D23, D22, D21, D20}; // LED Pins
+// int pinStatusLed = D17;              // Status LED
+// int pinLeds[] = {D25, D24, D23, D22, D21, D20}; // LED Pins
 int pinButtonMode = D6;                  // toggle button for selecting the mode
 
 HardwareSerial *serial = &Serial1;
@@ -479,7 +479,7 @@ void setup() {
 #ifndef OLED_GFX
  u8x8.begin();
  u8x8.setFont(u8x8_font_7x14B_1x2_r);
- u8x8.drawString(2,2,"ARDUINOBOY!!");
+ u8x8.drawString(2,2,"ARDUINOBOY");
 #else
 u8g2.begin();
 #ifndef USE_PICO
@@ -503,6 +503,7 @@ u8g2.clearBuffer();
 u8g2.setFont(u8g2_font_profont22_mf);
 u8g2.drawStr(5, 32, "Arduinoboy");
 u8g2.sendBuffer();
+delay(1000);
 
 #endif
 #endif
@@ -591,32 +592,34 @@ u8g2.sendBuffer();
   usbMidi sysex support
 */
   usbMidiInit();
+  #ifndef USE_PICO
   startupSequence();
   showSelectedMode(); //Light up the LED that shows which mode we are in.
-
+  #endif
+  #ifdef OLED
+  ShowSelectedModeOled();
+  #endif
 }
 
 /*
   Main Loop, which we don't use to be able to isolate each mode into its own setup and loop functions
 */
 void loop () {
-  
   setMode();
   switchMode();
 }
 #ifdef USE_PICO //draw data with core2 on rp2040 because u8g2 draw too slow on the i2c display
-#include "notes.h"
+#include "midi_values.h"
 void setup1()
 {
-  
 }
 void loop1()
 {
   if (memory[MEM_MODE] == 4){ //for now only draw info for mGB mode
 
       while (uint32_t mididata = rp2040.fifo.pop()){
-        byte tipo = (mididata & 0x000000ff);
-        byte canal = (mididata & 0x0000ff00) >> 8;
+        byte message_type = (mididata & 0x000000ff);
+        byte channel = (mididata & 0x0000ff00) >> 8;
         byte data1 = (mididata & 0x00ff0000) >> 16;
         byte data2 = (mididata & 0xff000000) >> 24;
 
@@ -654,33 +657,16 @@ void loop1()
       }
       u8g2.setFont(u8g2_font_6x12_tf);
       u8g2.setCursor(1, 34);
-      switch(tipo){
-        case 0x80:
-          u8g2.print("NoteOff");
-          break;
-        case 0x90:
-          u8g2.print("NoteOn");
-          break;
-        case 0xB0:
-          u8g2.print("ControlChange");
-          break;
-        case 0xC0:
-          u8g2.print("ProgramChange");
-          break;
-        case 0xE0:
-          u8g2.print("PitchBend");
-          break;
-      }
+      u8g2.print(messagesTypes[message_type].c_str());
       u8g2.setCursor(1, 44);
       u8g2.print("note: ");
-      // u8g2.print(data1, HEX);
       u8g2.print(notes[data1]);
       u8g2.setCursor(1, 54);
       u8g2.print("velocity: ");
       u8g2.print(data2, HEX);
       u8g2.setCursor(1, 64);
       u8g2.print("channel: ");
-      u8g2.print(canal, DEC);
+      u8g2.print(channel, DEC);
       u8g2.sendBuffer();
     }
 

@@ -34,8 +34,12 @@ void setMode()
     if(!memory[MEM_FORCE_MODE]) EEPROM.write(MEM_MODE, memory[MEM_MODE]); //write mode to eeprom if we arnt forcing a mode in the config
     #endif
   
+  #ifndef USE_PICO  //we dont use leds on rp2024 board, we use the oled display
     showSelectedMode();            //set the LEDS
-  
+  #endif
+  #ifdef OLED
+    ShowSelectedModeOled();
+  #endif
     switchMode();
   }
 }
@@ -51,160 +55,24 @@ void switchMode()
   switch(memory[MEM_MODE])
   {
     case 0:
-      #ifdef OLED
-      #ifndef OLED_GFX
-      u8x8.clearLine(5);
-      u8x8.clearLine(6);
-      u8x8.drawString(1,5,"LSDJ SlaveSync");
-      #else
-      #ifndef USE_PICO
-      u8x8_ClearLine(u8g2.getU8x8(),5);
-      u8x8_ClearLine(u8g2.getU8x8(),6);
-      u8x8_DrawString(u8g2.getU8x8(),1,5,"LSDJ SlaveSync");
-      #else
-      u8g2.clearBuffer();
-      u8g2.drawXBMP(17, 0, lsdj_width, lsdj_height, lsdj_bits);
-      u8g2.setFont(u8g2_font_profont22_mf);
-      u8g2.drawStr(10, 62, "SlaveSync");
-      u8g2.sendBuffer();
-      #endif
-      #endif
-      #endif
       modeLSDJSlaveSyncSetup();
       break;
     case 1:
-      #ifdef OLED
-      #ifndef OLED_GFX
-      u8x8.clearLine(5);
-      u8x8.clearLine(6);
-      u8x8.drawString(1,5,"LSDJ MasterSync");
-      #else
-      #ifndef USE_PICO
-      u8x8_ClearLine(u8g2.getU8x8(),5);
-      u8x8_ClearLine(u8g2.getU8x8(),6);
-      u8x8_DrawString(u8g2.getU8x8(),1,5, "LSDJ MasterSync");
-      #else
-      u8g2.clearBuffer();
-      u8g2.drawXBMP(17, 0, lsdj_width, lsdj_height, lsdj_bits);
-      u8g2.setFont(u8g2_font_profont22_mf);
-      u8g2.drawStr(5, 62, "MasterSync");
-      u8g2.sendBuffer();
-      #endif
-      #endif
-      #endif
       modeLSDJMasterSyncSetup();
       break;
     case 2:
-      #ifdef OLED
-      #ifndef OLED_GFX
-      u8x8.clearLine(5);
-      u8x8.clearLine(6);
-      u8x8.drawString(1,5,"LSDJ Keyboard");
-      #else
-      #ifndef USE_PICO
-      u8x8_ClearLine(u8g2.getU8x8(),5);
-      u8x8_ClearLine(u8g2.getU8x8(),6);
-      u8x8_DrawString(u8g2.getU8x8(),1,5,"LSDJ Keyboard");
-      #else
-      u8g2.clearBuffer();
-      u8g2.drawXBMP(17, 0, lsdj_width, lsdj_height, lsdj_bits);
-      u8g2.setFont(u8g2_font_profont22_mf);
-      u8g2.drawStr(15, 62, "Keyboard");
-      u8g2.sendBuffer();
-      #endif
-      #endif
-      #endif
       modeLSDJKeyboardSetup();
       break;
     case 3:
-      #ifdef OLED
-      #ifndef OLED_GFX
-      u8x8.clearLine(5);
-      u8x8.clearLine(6);
-      u8x8.drawString(4,5,"NANOLOOP");
-      #else
-      #ifndef USE_PICO
-      u8x8_ClearLine(u8g2.getU8x8(),5);
-      u8x8_ClearLine(u8g2.getU8x8(),6);
-      u8x8_DrawString(u8g2.getU8x8(),4,5,"NANOLOOP");
-      #else
-      u8g2.clearBuffer();
-      u8g2.drawXBMP(28, 5, nanoloop_width, nanoloop_height, nanoloop_bits);
-      u8g2.setFont(u8g2_font_profont22_mf);
-      u8g2.drawStr(16, 62, "nanoloop");
-      u8g2.sendBuffer();
-
-      #endif
-      #endif
-      #endif
       modeNanoloopSetup();
       break;
     case 4:
-      #ifdef OLED
-      #ifndef OLED_GFX
-      u8x8.clearLine(5);
-      u8x8.clearLine(6);
-      u8x8.drawString(6,5,"mGB");
-      #else
-      #ifndef USE_PICO
-      u8x8_ClearLine(u8g2.getU8x8(),5);
-      u8x8_ClearLine(u8g2.getU8x8(),6);
-      u8x8_DrawString(u8g2.getU8x8(),6,5,"mGB");
-      #else
-      u8g2.clearBuffer();
-      //u8g2.setFont(u8g2_font_callite24_tr);
-      //u8g2.drawStr(40,20,"mGB");
-      u8g2.drawXBMP(9, 10, mgb_width, mgb_height, mgb_bits);
-      // u8g2.setFont(u8g2_font_profont22_mf);
-      // u8g2.drawStr(10, 62, "mG");
-      u8g2.sendBuffer();
-      #endif
-      #endif
-      #endif
       modeMidiGbSetup();
       break;
     case 5:
-      #ifdef OLED
-      #ifndef OLED_GFX
-      u8x8.clearLine(5);
-      u8x8.clearLine(6);
-      u8x8.drawString(4,5,"LSDJ Map");
-      #else
-      #ifndef USE_PICO
-      u8x8_ClearLine(u8g2.getU8x8(),5);
-      u8x8_ClearLine(u8g2.getU8x8(),6);
-      u8x8_DrawString(u8g2.getU8x8(),4,5,"LSDJ Map");
-      #else
-      u8g2.clearBuffer();
-      u8g2.drawXBMP(17, 0, lsdj_width, lsdj_height, lsdj_bits);
-      u8g2.setFont(u8g2_font_profont22_mf);
-      u8g2.drawStr(45, 62, "Map");
-      u8g2.sendBuffer();
-      #endif
-      #endif
-      #endif
       modeLSDJMapSetup();
       break;
     case 6:
-      #ifdef OLED
-      #ifndef OLED_GFX
-      u8x8.clearLine(5);
-      u8x8.clearLine(6);
-      u8x8.drawString(4,5,"MIDI OUT");
-      #else
-      #ifndef USE_PICO
-      u8x8_ClearLine(u8g2.getU8x8(),5);
-      u8x8_ClearLine(u8g2.getU8x8(),6);
-      u8x8_DrawString(u8g2.getU8x8(),4,5,"MIDI OUT");
-      #else
-      u8g2.clearBuffer();
-      u8g2.drawXBMP(17, 0, lsdj_width, lsdj_height, lsdj_bits);
-      u8g2.setFont(u8g2_font_profont22_mf);
-      u8g2.drawStr(17, 62, "MIDI Out");
-      u8g2.sendBuffer();
-      #endif
-      #endif
-      #endif
       modeLSDJMidioutSetup();
       break;
   }

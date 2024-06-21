@@ -13,7 +13,9 @@
 
 void modeLSDJKeyboardSetup()
 {
+  #ifndef USE_PICO
   digitalWrite(pinStatusLed,LOW);
+  #endif
   pinMode(pinGBClock,OUTPUT);
   digitalWrite(pinGBClock,HIGH);
  #ifdef USE_TEENSY
@@ -104,8 +106,9 @@ void modeLSDJKeyboard()
         midiData[0] = false;
     }
   }
-
+  #ifndef USE_PICO
   updateStatusLed();        // Update our status blinker
+  #endif
   setMode();                // Check if mode button was depressed
   }
 }

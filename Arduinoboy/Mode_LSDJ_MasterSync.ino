@@ -14,7 +14,9 @@
 
 void modeLSDJMasterSyncSetup()
 {
+  #ifndef USE_PICO
   digitalWrite(pinStatusLed,LOW);
+  #endif
   pinMode(pinGBClock,INPUT);
 
   #ifdef USE_TEENSY
@@ -62,7 +64,9 @@ void checkActions()
 {
   checkLSDJStopped();                        //Check if LSDJ hit Stop
   setMode();
+  #ifndef USE_PICO
   updateStatusLight();
+  #endif
 }
 
  /*
@@ -143,8 +147,9 @@ void sendMidiClockSlaveFromLSDJ()
 #endif
     countGbClockTicks=0;            //Reset the bit counter
     readGbSerialIn = 0x00;                //Reset our serial read value
-
+    #ifndef USE_PICO
     updateVisualSync();
+    #endif
   }
   countGbClockTicks++;              //Increment the bit counter
  if(countGbClockTicks==8) countGbClockTicks=0;

@@ -13,7 +13,9 @@
 
 void modeNanoloopSetup()
 {
-  digitalWrite(pinStatusLed,LOW);
+  #ifndef USE_PICO
+  digitalWrite(pinStatusLed, LOW);
+  #endif
   pinMode(pinGBClock,OUTPUT);
   digitalWrite(pinGBClock,HIGH);
 
@@ -46,7 +48,9 @@ void modeNanoloopSync()
             nanoState = sendTickToNanoloop(true, true);
           }
           nanoState = sendTickToNanoloop(nanoState, nanoSkipSync);
+          #ifndef USE_PICO
           updateVisualSync();
+          #endif
           break;
         }
         break;
@@ -63,7 +67,9 @@ void modeNanoloopSync()
     }
   }
   setMode();         //Check if the mode button was depressed
+  #ifndef USE_PICO
   updateStatusLight();
+  #endif
   }
 }
 
@@ -112,7 +118,9 @@ void usbMidiNanoloopRealtimeMessage(uint8_t message)
               nanoState = sendTickToNanoloop(true, true);
             }
             nanoState = sendTickToNanoloop(nanoState, nanoSkipSync);
+            #ifndef USE_PICO
             updateVisualSync();
+            #endif
           }
       break;
       case 0xFA:                                // Case: Transport Start Message
