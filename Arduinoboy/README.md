@@ -4,6 +4,8 @@ At the moment, the only tested mode is mGB.
 
 ![rp4020boy](/schematic/20240618_172258.jpg)
 
+![schematic](/schematic/schematic.png)
+
 Repository for serial MIDI communication to the Nintendo Gameboy.
 
 ![ScreenShot](http://trash80.net/arduinoboy/aboy1_2_0.jpg)
